@@ -1,0 +1,359 @@
+The downsampling of a discrete wavelet transform (DWT) has a side effect of the lack of shiftinvariance.
+There are two main solutions for this effect: one is the stationary wavelet transform (SWT), which does not apply downsampling.
+The other is the complex DWT (CDWT), which uses dual multiresolution analysis (MRA).
+We choose the CDWT as a target of research.
+It is well known that wavelet functions become Hilbert transform pairs if the low-pass filters (LPFs) on the reconstruction side have half-sample shifts.
+In this paper, we propose a quasi-shift-invariant (QSI) CDWT for bi-/orthogonal wavelets as a new CDWT.
+We report three new works (W1-W3) on it: (W1) we generalized the condition of Hilbert transform pairs and employed a complex wavelet function as a conjugate analytical signal.
+(W2) We defined a structure that achieves shift-invariance.
+The structure requires half-sample delays between the inputs of real and imaginary parts.
+(W3) We proposed an implementation of the QSI-CDWT and confirmed that our method has higher shift-invariance than the conventional CDWT.
+However, two problems (P1, P2) remain unsolved: (P1) our method requires more resources, such as memory and calculation time, than the conventional CDWT.
+(P2) Our theory cannot make all packets shift-invariant in a classical wavelet packet transform tree.
+Keywords: shift-invariance, orthogonal wavelet, bi-orthogonal wavelet, complex discrete wavelet transform the paper in Sect.5.
+We use the notation N = {1, 2, .
+.
+.}, N 0 = {0} ∪ N, Z = {0, ±1, ±2, .
+.
+.} and B = {0, 1}.
+We denote F [·] as the
+The Fourier transform [1] is a technique that transforms time-domain signals to frequency-domain ones.
+There is a fast computation algorithm [2] for the Fourier transform that is widely used in the scientific and engineering fields.
+Wavelet transforms [3][4][5] came into existance toward the end of the 20th century.
+They are a time-frequency analysis tool similar to the short-time Fourier transform (STFT) [5].
+The STFT requires parameters of the window function to be adjusted depending on the frequency range.
+Although this enables a precise analysis, the users require expert skills.
+The wavelet transform gives the relationship between the window function and the intended frequency range.
+Without the labor required for the STFT, it enables an adequate analysis with reasonable accuracy.
+The discrete wavelet transform (DWT) [3][4][5] is one of the wavelet transforms.
+The DWT targets discrete-time signals, and is the same as the two-channel filter bank [6,7].
+The DWT using a bi-/orthogonal wavelet corresponds to a bi-/orthogonal filter bank, respectively, and both can reconstruct a signal from decomposed signals correctly.
+In multiresolution analysis (MRA) [8] of the DWT, the output signal retains every even-indexed sam-ple of the source signal.
+This operation is called downsampling [9].
+The DWT has the problem known as a lack of shiftinvariance [10] or a lack of translation-invariance.
+This means that the reconstructed signal or the energy of a DWT output varies depending on the time shifts of the input signal.
+Shift-invariance is a very important property for some applications such as change detection and denoising.
+The downsampling causes the lack of shiftinvariance [10].
+Many proposed methods have been reported for overcoming the problem, including the undecimated wavelet transform (stationary wavelet transform; SWT) [11] and the complex DWT (CDWT) [12,13], by constructing a Hilbert transform pair of wavelet functions [14].
+In this paper, we choose the CDWT as a target of research.
+This paper is organized as follows.
+Section 2 summarizes some definitions and already known facts.
+We describe our proposed CDWT in Sect.3, which is the novelty of this paper.
+Section 4 reports three experiments using our CDWT and shows the results.
+Finally, we conclude
+where C is the appropriate region of convergence (ROC).
+In this section, we summarize previous research and show the lack of shift-invariance.
+In this subsection, we summarize previous findings [3][4][5] simply.
+Figure 1 shows one-level decomposition of a DWT in a block diagram representation, which is the same as the two-channel filter bank [7].
+The downsampler and the upsampler are respectively expressed in the Z-domain [7] as follows:
+where X is the input and Y is the output, respectively.
+The first term of Eq.
+(3) is a signal component and the second one is an aliasing component.
+If an appropriate low-pass filter (LPF) is applied before the downsampling, the filter suppresses the aliasing component.
+Figure 2 shows a twochannel filter bank.
+The filter bank satisfies the following two equations for perfect reconstruction: where M ∈ N 0 .
+We use H 0 as the LPF of the decomposition side.
+H 1 is the high-pass filter (HPF) of the decomposition side.
+G 0 and G 1 are the synthesis filters corresponding to H 0 and H 1 , respectively.
+The above equations are equivalent to
+The conjugate quadrature filter (CQF) bank [6,7] is one of the filter banks using FIR filters.
+It guarantees perfect reconstruction.
+The DWT and the inverse DWT using orthogonal wavelets are the same as the CQF bank.
+The filters H 1 , G 0 and G 1 of the CQF bank are subordinate to H 0 as follows:
+where L = 2k (k ∈ N) is the length of the impulse response of H 0 .
+If L = 2k + 1, then we pad one sample with a value of 0 at the end of H 0 to make L an even number.
+If we build a system regardless of the causality, L can be arbitrarily assigned by appropriately selecting a positive value.
+We substitute Eqs.
+(8), (9) and (10) into Eq.
+(6) and obtain M = L − 1 and
+Equation (11) denotes the power-complementary property of the CQF bank.
+The MRA [8] consists of some DWTs as shown in Fig.3.
+Each low-pass output is regarded as a new input.
+The system finely divides lower-frequency bands and roughly divides higher-frequency bands.
+The wavelet packet transform (WPT) [15] is a solution to improve  Figure 4 shows that the WPT recursively uses the previous level's outputs as new inputs.
+The output of each channel is called the packet.
+Let us denote the packet by Ψ ℓ, n , where ℓ ∈ N 0 is the level and n ∈ N 0 is the index of the channels.
+The output Ψ ℓ+1, 2n+i is formulated by using Eq.
+(3) as
+where i ∈ B.
+The CDWT [12] consists of two filter banks using the Hilbert transform [16] pair of wavelets [12,13].
+Two wavelets of the filter banks are ψ R and ψ I , respectively, where · R denotes the real part, · I denotes the imaginary part.
+The principle of the CDWT is based on the following theorem:
+ψ I is the Hilbert transform of ψ R if G R 0 and G I 0 are the LPFs of the reconstruction side of two CQF banks and
+Proof See [14].
+2
+The lifting scheme [17][18][19] is able to calculate the DWT sequentially.
+It has two methods of calculation: in-place and sequential calculation.
+The in-place calculation is an alternative way to calculate the circular convolution.
+In this subsection, we will clarify the definition of the shift-invariance.
+Figure 5 shows the decomposition and the reconstruction of a signal with k (∈ Z)-sample shifts.
+The pair (H, G) is a decomposition filter H and a reconstruction filter G corresponding to H, for example, (H 0 , G 0 ) or (H 1 , G 1 ) of the CQF bank.
+S is represented as
+If
+where the calculation process is given in Appendix A.
+s is a time-varying signal depending on the value of k.
+The sampling points depend on whether k is an even or odd number.
+The reconstructed signal Y is
+which we can rewrite as
+where
+.
+The calculation process is given in Appendix B.
+Y is also a time-varying signal depending on k.
+This varying feature is the lack of shift-invariance.
+We propose a new CDWT; the quasi-shift-invariant (QSI) CDWT.
+Here we show the principle and implementation of the QSI-CDWT.
+The previous research [14] showed that the wavelet function becomes ψ R + jH
+if Eq.
+(13) is satisfied.
+We generalize Eq.
+(5) of [14] as
+where λ ∈ {±1}.
+We rewrite Eq.
+(13) as
+By using Eqs.
+(8) and (9), we obtain
+The λ = 1 case provides the Hilbert transform pair of wavelet functions.
+We summarize the discussion using λ in Appendix C.
+The complex wavelet function ψ becomeŝ
+If λ = 1, then the wavelet function becomes an analytical signal with only positive-frequency components.
+However, the λ = −1 case provides a wavelet function with only negative-frequency components.
+It also gets an orthogonal relationship between the real and imaginary parts.
+In this paper, by using λ, we ease the condition on the Hilbert transform pairs of the wavelet function for shift-invariance.
+Many conventional CDWTs are based on Theorem 1.
+We will add a new condition for the conventional CDWT, and show that the condition leads to the shift-invariant structure that we will define.
+Proof S R and S I retain the samples of HX perfectly if k = 2m + 1, which is the same logic as in Eq.
+(15).
+As shown in Eq.
+(17), we obtain
+where
+.
+The following result is obtained through the linearity of z-transforms:
+We define the shift-invariant structure as follows:
+Definition 1 shift-invariant structure We call the structure shown in Fig.6 the shift-invariant structure, if the twofold channel applies the same process except the time delay of k = 2m + 1 (m ∈ Z).
+We summarize the following important points about the structure:
+• The shift-invariant structure is a mechanism for one channel, for example, only on the LPF side or only on the HPF side.
+• The difference between real and imaginary parts is the time delay before decimation.
+• We use the same filters in both parts.
+When using the CQF bank, one filter can represent another filter by itself as shown in Eqs.
+(8), (9) and (10).
+This implies that we can theoretically use the same filter at each decimation of the real and imaginary parts.
+In addition, by giving a time delay to inputs, we can verify the shift-invariance of the shift-invariant structure.
+We set the time delay β between a real input Ψ R ℓ, n and an imaginary input Ψ I ℓ, n as
+By using Eq.
+(12), each output is written as (8) is not used except for in Eq.
+(27).
+Note that the relation between H R 1 and H I 1 is derived from Eqs.
+(8) and (20) as
+If an appropriate β is choosen, Eqs.
+(24) and (25) eliminate the downsampling effect of H R 0 Ψ R ℓ, n .
+We can define such a β as
+where u ∈ Z.
+Equation (28) shows that the decomposition of the LPF side from level ℓ to ℓ + 1 becomes a shift-invariant structure.
+Next, we will verify the conditon that the shiftinvariant structure appears.
+The delay −λ/2 of Eq.
+(25) is the condition of Eq.
+(20), and β is the delay between the real and imaginary parts of Eq.
+(23).
+We transform Eqs.
+(24) and (25) from the time domain to the Z-domain because we need to confirm the inheritance of the delay.
+These equations become
+where each second term is an aliasing component due to downsampling.
+If H R 0 has the ability to strongly restrain the aliasing components, we can rewrite these equations as
+and we can represent these equations as
+By using Eqs.
+(23) and (28), we can also obtain
+This means that the real and imaginary signals have the same delay of the inputs.
+A packet inherits the shift-invariant structure when it inherits the delays between the inputs from its parents.
+We substitute Eq.
+(33) into Eq.
+(28), and thus the delay β between the inputs must be
+This logic can be recursively applied to all the packets at each level of the MRA tree.
+We summarize the results as follows.
+• We can obtain two conditions, Eq.
+(20) for the shifts of on LPF and Eq.
+(34) for the shifts of an input, if λ is set.
+All LPF outputs of the MRA tree inherit the shift-invariant structure regardless of whether λ is 1 or −1.
+• Only in the case of Eq.
+(28), the real and imaginary outputs perfectly retain the signal before downsampling in theory.
+This condition makes the shift-invariant structure in one-level decomposition.
+The achievement of shift-invariance depends on the accuracy of the half-sample shifts, the LPFs and the inputs.
+• In the case of Eq.
+(34) and using an LPF to suppress aliasing, the LPF side of the CDWT inherits the shift-invariant structure recursively.
+However, if one channel of a CQF bank obtains shift-invariance, then the other channel also does due to the condition of perfect reconstruction.
+Therefore, the HPF side can consequently obtain shift-invariance when the LPF side becomes a shift-invariant structure.
+wavelet transforms We showed the principle of the shift-invariance in Sect.3.2.
+By using it, we can check the possibility of the shift-invariance of other DWTs.
+In this subsection, we summarize the classical WPT, the bi-orthogonal DWT [4] and the conventional CDWTs.
+WPT All outputs of the classical WPT become inputs of the next level.
+The LPF side can inherit the shiftinvariant structure; however, all the packets cannot have the shift-invariant structure.
+Some packets corresponding to the MRA tree are able to obtain shift-invariance.
+Bi-orthogonal DWT Let us denote the filters by
+, whereH i is the decomposition side andG i is the reconstruction side, where i ∈ B.
+The filter bank of the bi-orthogonal DWT is not equivalent to the CQF bank.
+The relations between the filters are as follows:
+This filter bank satisfies the perfect-reconstruction conditions (Eqs.
+(5) and (6)).
+However, it does not guarantee the relation between the LPF and the HPF given by Eq.
+(8).
+As shown in Fig.7, one filter cannot represent another filter by itself.
+The shift-invariant structure requires the same filter to be used across the real and imaginary parts on one channel.
+The bi-orthogonal DWT does not ensure Eq.
+(8) and cannot express the relation betweeñ H R 1 andH I 1 directly.
+In Appendix C, we found that Eqs.
+(19) and (20) are satisfied for the biorthogonal CDWT.
+The experiment reported in this paper shows the shift-invariance of the QSI-CDWT using bi-orthogonal wavelets.
+Conventional CDWT Let us denote the time-delay in level ℓ between a real-part input Ψ R ℓ, n and an imaginary-part input Ψ I ℓ, n , Ψ I ℓ, n = z −γ ℓ Ψ R ℓ, n , by γ ℓ .
+We put γ 0 = 0 because the conventional CDWT has no time-delay between the real and imaginary inputs.
+We can obtain the delay on the LPF side of the next level ℓ + 1 as
+and the general term is
+In the case that ℓ → ∞, γ ℓ becomes 1/2.
+In theory, the shift-invariant structure does not appear except for the case that ℓ is infinite.
+CDWT using Meyer wavelets Toda and Zhang [20] proposed a shift-invariant CDWT called the "perfect-translation-invariant (PTI) CDWT." This CDWT uses samples from Meyer's scaling function.
+It satisfies two conditions: half-sample shifts of the source signal and an LPF between real and imaginary parts.
+It obtains perfect shift-invariance by the traditional decomposition method in theory, where "traditional" means that it repeatedly uses the same filter pair on each real and imaginary part.
+The LPF of Meyer has good suppression of aliasing artifacts.
+In practice, the PTI-CDWT's property provides almost perfect shift-invariance because of a certain level of computational error.
+It has the best shift-invariance among the methods Fig. 8 Illustration of half-sample shift in block diagram representation using orthogonal wavelets.
+However, the length of the LPF is long and the CDWT requires a large amount of resources for computation.
+In this section, we construct a new CDWT with quasi shift-invariance for a bi-/orthogonal DWT.
+The difference between the PTI-CDWT and our CDWT is that our method generalizes a CDWT with better shift-invariance.
+The "quasi" means that our CDWT cannot provide perfect shiftinvariance in practice.
+For example, our theory has some practical difficulties: the anti-aliasing performance of the LPF, the computational error and the calculation time.
+In this subsection, we will show how to implement our proposed CDWT based on the discussion in Sect.3.2.
+It gives a quasi-shift-invariant performance in practice because our theory works well only under an ideal condition using an appropriate LPF.
+We implement the structure in Fig.8 for a half-sample delay in this paper.
+Figure 9 shows the dual tree of the conventional CDWT.
+Figures 10 and 11 show the dual trees for the decomposition and reconstruction for the QSI-CDWT, respectively.
+The delay is performed in the pre-/post-processing as shown in the figures.
+We summarize how to realize the QSI-CDWT as follows:
+1.
+Prepare an anti-aliasing filter H R 0 .
+from H I 0 using Eqs.
+(8), (9) and (10).
+6.
+Place filters for the decomposition as shown in Fig.10 and for the reconstruction as shown in Fig.11.
+We can begin from the third step when using well-known orthogonal wavelet.
+As shown in Table 1, we represent the Daubechies 2,   [4] of the imaginary part as examples of the QSI-CDWT.
+We call them db2, db4, db6 and db8, respectively.
+A Daubechies wavelet is one of the orthogonal wavelets.
+It is a halfband filter and a max-flat on the passband and stopband.
+It is adequate to observe the relation between the shift-invariance and the suppression of aliasing noise because it becomes an ideal LPF as the filter length increases.
+In practice, we implement the circular convolution as the convolution because the implementation of upsampling and downsampling becomes easy.
+For example, let f be an input, g a filter, N f the length of f and N g the length of g.
+g has a finite support and
+The convolved signal is provided as an N f -length signal.
+If we decompose and reconstruct a signal under the above rules of convolution, the reconstructed signal has N g − 1-sample delays.
+This means that the result becomes (4, 1, 2, 3) when using the input (1, 2, 3, 4) and a filter with N g = 2, for instance.
+The DWT and the inverse DWT should not adopt an extra delay operator to fit in with Fig.2.
+Therefore, in practice, decomposition filters include an N g /2-sample advance operator and reconstruction ones do
+-sample advance operator.
+By us-ing these fixes, the result becomes (1,2,3,4) when using the input (1,2,3,4).
+We can use the IDWT and the DWT (convolution or lifting scheme) in place of the process in Fig.8.
+However, it does not need these fixes if the N g − 1-sample shifts of the reconstructed signal are insignificant.
+In addition, it is not necessary to implement a circular convolution as long as downsampling and upsampling are appropriately executed.
+We show the derivation of H I 0 (db2) by Maxima * 1 in Appendix D.
+In this subsection, we confirm the improvement of shiftinvariance when using our method through three experiments.
+Each experiment uses an impulse signal as the input.
+Each input has p-sample delays, where p ∈ [0, 31] ∩ Z.
+Each reconstructed signal from Ψ 5,1 with p-sample delays appears in the same chart as a composite graph.
+We drew all Ψ 5,1 fixed p-sample delays in the figure as the result.
+If the shift-invariance is satisfactory, all the wave shapes are the same.
+We used the db2, db4, db6 and db8 as examples of orthogonal wavelets.
+As shown in Fig.12, we conducted a comparison of shift-invariance among the real DWT, the conventional CDWT and the QSI-CDWT.
+Experiment 2 (lifting scheme) As shown in Fig.13, each reconstructed signal from Ψ 5,1 with p-sample delays appears in the same chart as a composite graph.
+We apply the lifting scheme of the QSI-CDWT to the signal.
+The lifting steps of the imaginary parts are mechanically derived from Table 1 by using the factorization method [21].
+The steps of the real parts are also provided using the method.
+Experiment 3 (bi-orthogonal wavelet) We can apply Eqs.
+(19) and (20) to the bi-orthogonal wavelets, as shown in Appendix C.
+Figure 14 shows the relations between the filters.
+We summarize how to realize the QSI-CDWT for bi-orthogonal wavelets as follows: 1.
+Prepare a decomposition LPFH R 0 and a reconstruction LPFG R 0 .
+fromH R 0 andG R 0 using fromH I 0 andG I 0 using Eqs.
+(35) and (36).
+7.
+Place filters as shown in Figs. 10 and 11.
+We use the biorthogonal wavelets [4] bior2.4, bior2.8, bior3.7 and bior3.9 in this experiment, and the result is shown in Fig.15.
+Our half-sample shift routine requires an LPF with good suppression of aliasing components.
+As shown in Fig.16, the suppression of the Daubechies bases increases with the length of H R 0 .
+Experiment 1 shows that the shift-invariant performance depends on the length of H R 0 .
+Fig.16 also shows the difference between the case of λ = +1 and −1.
+The λ = 1 case, which provides the wavelet function as an analytical signal, is almost flat at higher frequencies.
+However, the λ = −1 case lacks this property.
+This difference shows that the λ = 1 case is better than the λ = −1 case for db2 in Fig.12.
+Experiment 2 showed the lifting scheme of QSI-CDWT.
+We can substitute forward steps (decomposition) and backward steps (reconstruction) for the half-sample shift routine.
+Some errors in the computation or truncation lead to a deterioration of the shift-invariance compared with that in the case of convolution.
+We found that Eqs.
+(19) and (20) can be applied to bi-orthogonal wavelets in Appendix C.
+The result of experiment 3 shows that the shift-invariance increases with the length ofH • 0 as orthogonal wavelets.
+In this paper, we theoretically explained how our new CDWT using bi-/orthogonal wavelets obtains shift-invariance.
+In addition, we demonstrated its implementation by allowing a shift-invariance gap between in theory and practice.
+Our proposed CDWT is named the  Our method only needs an LPF on the decomposition side (and one on the reconstruction side in the bi-orthogonal case).
+The novelty of our method is three things: the use of λ, the definition of the principle for shift-invariance and the use of pre-/post-processing.
+λ shows that the wavelet function does not need to be a complete Hilbert transform pair for shift-invariance.
+The λ = −1 case provides the conjugate of the λ = 1 case.
+The well-known condition of half-sample shifts of LPFs is insufficient to obtain and inherit shift-invariance.
+In theory, the perfect shift-invariance requires our proposed condition and an appropriate anti-aliasing filter.
+We proposed an implementation of the QSI-CDWT, that allows for a margin of error of the shift-invariance due to the practical calculation cost.
+We showed that the QSI-CDWT has more shift-invariance than the conventional CDWT.
+The QSI-CDWT works well in the case of using the bi-/orthogonal DWT.
+The pre-and post-processing can accomplish half-sample shifts by using the DWT and IDWT routines, reducing the implementation cost.
+However, two problems (P1, P2) remain unsolved: (P1) our method requires more computational resources, such as memory and calculation time, than the conventional CDWT.
+(P2) Our theory shows that all the packets of the classical WPT cannot obtain shift-invariance simultaneously.
+Some packets, which correspond to the packets of the MRA tree, obtain get the shift-invariance if the QSI-CDWT is extended to the classical WPT.
+where C, C 1 and C 2 are the appropriate ROCs.
+The transformation is w = z 1 2 and v = −z 1 2 , and the differentials are 2wdw = dz and 2vdv = dz.
+s becomes
+where C ′ 1 and C ′ 2 are the appropriate ROCs.
+As shown in Fig.8,
+We use the one of the properties of the z-transform,
+from the linearity of the z-transform and {−1} −n = {−1} n .
+Here we summarize the discussion of Selesnick [14] and extend it.
+By using θ i : R � → (−π/2, +π/2) , i ∈ B, we assume that the phase difference is
+The scaling function of the real part iŝ
+The scaling function of the imaginary part iŝ
+The wavelet function of the real part iŝ
+The wavelet function of the imaginary part iŝ
+)        By using λ ∈ {±1}, we extend Selesnick's discussion.
+We constructψ
+ψ becomes an analytical signal when λ = 1.
+The phase condition is
+Orthogonal Wavelets We can directly represent G • 1 using G • 0 because of the CQF bank.
+We consider the following two relations.
+The first relation iŝ G I 1 (ω) =Ĝ I 0 (−ω ∓ π) exp ( −jω (L − 1) ) ∵ Eq.
+(43)
+=Ĝ R 0 (−ω ∓ π) exp ( −jω (L − 1) ) · exp ( −jθ 0 (−ω ∓ π) ) ∵ Eq.
+(40) The second relation iŝ
+Both of the relations give
+Selesnick [14] assumed that θ 0 (ω) = ω/2.
+We assume that θ 0 (ω) = λω/2 in this paper.
+We substitute θ 0 into the second term of Eq.
+(42) and the term becomes
+Equation (44) gives θ 1 .
+The range of θ 0 (−ω ∓ π) is − π 2 < θ 0 (−ω ∓ π) < π 2
+In the case of −ω+π, the range of ω is 0 < ω < 2π, regardless of whether λ = +1 or −1.
+The case of −ω − π gives −2π < ω < 0.
+Therefore, θ 1 has to be
+Bi-orthogonal Wavelets We use the notation of Eqs.
+(35) and (36) to uniquely distinguish orthogonal wavelets from bi-orthogonal wavelets.
+We translate the scaling function ϕ • intoφ • corresponding toG • 0 , and the wavelet function ψ • intoψ • corresponding toG • 1 .
+The issue in this subsection is whether Eq.
+(20) is true for the bi-orthogonal wavelet transform when we assume Eq.
+(19).
+The assumption of Eq.
+(19) equals to θ 0 (ω) = λω/2.
+We assumeH I 0 (z) = z −rHR 0 (z)
+where r ∈ (−1, +1).
+The HPF on the reconstruction side is We use z = exp ( jω ) and directly compare the above relation with Eq.
+(40),
+This is the same result as for the case of orthogonal wavelet if r = −λ/2.
+The wavelet functionsψ R and ψ I fromG R 1 andG I 1 respectively satisfy Eq.
+(41).
+θ i of Eq.
+(40) defines the relation not between G • i and G • 1−i but between G R i and G I i .
+Therefore, using Eq.
+(40) does not lead Eq.
+(8).
+This is consistent with the feature of the bi-orthogonal wavelet transform.
+,
